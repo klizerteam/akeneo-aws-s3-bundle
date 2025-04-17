@@ -1,5 +1,5 @@
 {
-    "name": "Klizer/akeneo-aws-s3-bundle",
+    "name": "klizer/akeneo-aws-s3-bundle",
     "type": "symfony-bundle",
     "description": "Akeneo bundle to configure AWS S3 for file storage",
     "license": "MIT",
@@ -29,7 +29,7 @@
     "repositories": [
       {
         "type": "vcs",
-        "url": "https://github.com/Klizer/akeneo-aws-s3-bundle"
+        "url": "https://github.com/klizerteam/akeneo-aws-s3-bundle"
       }
     ]
   }
