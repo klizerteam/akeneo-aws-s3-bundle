@@ -1,0 +1,4 @@
+services:
+    Klizer\AwsS3Bundle\Command\SetupAwsS3Command:
+        tags: ['console.command']
+
