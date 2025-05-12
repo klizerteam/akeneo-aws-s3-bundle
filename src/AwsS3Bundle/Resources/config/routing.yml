@@ -1,5 +1,0 @@
-# /src/Klizer/AwsS3Bundle/Resources/config/routing.yml
-klizer_aws_configuration:
-    path: /klizer_aws_configuration
-    defaults: { _controller: KlizerAwsS3Bundle:Configuration:index }
-

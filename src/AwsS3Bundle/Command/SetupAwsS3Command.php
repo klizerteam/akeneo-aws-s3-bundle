@@ -53,6 +53,9 @@ class SetupAwsS3Command extends Command
         $this->writeOneupConfig($projectRoot, $output);
         $this->writeStorageAliases($projectRoot, $output);
         $this->writeServiceAliases($projectRoot, $output);
+        $this->writeKlizerServiceConfig($projectRoot, $output);
+        $this->writeKlizerRouteConfig($projectRoot, $output);
+
 
         // Clear Akeneo cache
         exec('php bin/console cache:clear --env=prod');
@@ -228,6 +231,31 @@ YAML;
         file_put_contents($filePath, $existingContent . "\n\n" . $block);
         $output->writeln("services.yml created with services block and aws_s3_client alias.");
     }
+}
+
+private function writeKlizerServiceConfig(string $projectRoot, OutputInterface $output): void
+{
+    $filePath = $projectRoot . '/config/services/klizer_aws.yml';
+    $yaml = <<<YAML
+twig:
+  paths:
+    '%kernel.project_dir%/src/Klizer/AwsS3Bundle/Resources/views': klizer_aws
+YAML;
+
+    file_put_contents($filePath, $yaml);
+    $output->writeln("<info>Service file written to: $filePath</info>");
+}
+
+private function writeKlizerRouteConfig(string $projectRoot, OutputInterface $output): void
+{
+    $filePath = $projectRoot . '/config/routes/klizer_aws.yml';
+    $yaml = <<<YAML
+klizer_aws:
+    resource: '@KlizerAwsS3Bundle/Resources/config/routes.yml'
+YAML;
+
+    file_put_contents($filePath, $yaml);
+    $output->writeln("<info>Route file written to: $filePath</info>");
 }
 
 private function ensureComposerPackageInstalled(string $packageName, string $projectRoot, OutputInterface $output): bool

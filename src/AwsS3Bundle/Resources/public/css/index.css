@@ -31,3 +31,29 @@ label {
     border-radius: 5px;
     margin-top: 15px;
 }
+
+
+.AknDocsMenu-link {
+    height: 32px;
+    width: 32px;
+    border: 1px solid #ccd1d8;
+    border-radius: 100px;
+    cursor: pointer;
+    background: url(/bundles/klizerawss3/images/docs.svg) no-repeat 50% 50%;
+    background-size: 16px;
+}
+
+.AknSupportMenu-link {
+    height: 32px;
+    width: 32px;
+    border: 1px solid #ccd1d8;
+    border-radius: 100px;
+    cursor: pointer;
+    background: url(/bundles/klizerawss3/images/support.png) no-repeat 50% 50%;
+    background-size: 16px;
+}
+
+.AknDocsMenu
+{
+  padding-right: 4px;
+}

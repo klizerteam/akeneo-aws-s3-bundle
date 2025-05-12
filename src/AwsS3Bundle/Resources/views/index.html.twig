@@ -1,7 +1,3 @@
-{% block head_script %}
-    <script src="{{ asset('bundles/klizerawss3/js/tab-switch.js') }}" nonce="{{ nonce }}"></script>
-{% endblock %}
-
 {% block body %}
     <link rel="stylesheet" href="{{ asset('bundles/klizerawss3/css/index.css') }}" />
 
@@ -32,6 +28,20 @@
                                 </div>
 
                                 <div class="AknTitleContainer-buttonsContainer">
+                                    <div class="AknTitleContainer-userMenuContainer user-menu" data-drop-zone="user-menu">
+                                        <div class="AknTitleContainer-userMenu">
+                                            <div class="AknDocsMenu">
+                                                <a href="docs">
+                                                    <div class="AknDocsMenu-link" title="Documentation"></div>
+                                                </a>
+                                            </div>
+                                            <div class="AknSupportMenu">
+                                                <a href="support">
+                                                    <div class="AknSupportMenu-link" title="Support"></div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="AknTitleContainer-actionsContainer AknButtonList" data-drop-zone="buttons">
                                         <button type="submit" class="AknButton AknButton--apply">Save</button>
                                     </div>
@@ -59,23 +69,15 @@
                     <div class="tabbable tabs-top">
                         <header class="AknHorizontalNavtab">
                             <ul class="AknHorizontalNavtab-list nav nav-tabs form-tabs">
-                                <li class="AknHorizontalNavtab-item" data-tab="docs-tab">
-                                    <a class="AknHorizontalNavtab-link" href="javascript:void(0);" role="button">Documentation</a>
-                                </li>
                                 <li class="AknHorizontalNavtab-item" data-tab="aws-configuration-tab-credential">
-                                    <a class="AknHorizontalNavtab-link AknHorizontalNavtab-link--active" href="javascript:void(0);" role="button">Credentials</a>
-                                </li>
-                                <li class="AknHorizontalNavtab-item" data-tab="support-tab">
-                                    <a class="AknHorizontalNavtab-link" href="javascript:void(0);" role="button">Support</a>
+                                    <a class="AknHorizontalNavtab-link AknHorizontalNavtab-link--active" href="javascript:void(0);" role="button">
+                                        Credentials
+                                    </a>
                                 </li>
                             </ul>
                         </header>
 
                         <div class="AknTabContainer-contentThreeColumns form-container form-horizontal">
-                            <div data-tab-content="docs-tab" style="display: none;">
-                                <p>Documentation goes here.</p>
-                            </div>
-
                             <div data-tab-content="aws-configuration-tab-credential">
                                 {% if aws_status == 'success' %}
                                     <div class="alert alert-success">✅ AWS connection successful!</div>
@@ -109,10 +111,6 @@
                                         {{ form_widget(form.AWS_PREFIX) }}
                                     </div><br>
                                 </div>
-                            </div>
-
-                            <div data-tab-content="support-tab" style="display: none;">
-                                <p>Support info here.</p>
                             </div>
                         </div>
                     </div>

@@ -80,10 +80,6 @@ public function index(Request $request): Response
 	    'aws_status' => $awsStatus,
 	    'aws_error'  => $awsError,
 	]);
-
-	// Add the CSP header with the nonce
-	$response->headers->set('Content-Security-Policy', "script-src 'self' 'nonce-$nonce'");
-
 	return $response;
 
 }
