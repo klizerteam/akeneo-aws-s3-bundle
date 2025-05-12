@@ -1,0 +1,5 @@
+config:
+    paths:
+        klizerawss3/tab-switch: klizerawss3/js/tab-switch
+        klizerawss3/controller/aws: klizerawss3/js/controller/aws
+

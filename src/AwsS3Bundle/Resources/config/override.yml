@@ -1,0 +1,5 @@
+klizer/controller/aws:
+    module: klizerawss3/controller/aws
+    config:
+        url: klizer/aws
+

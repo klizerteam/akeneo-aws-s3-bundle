@@ -1,0 +1,24 @@
+services:
+    Klizer\AwsS3Bundle\Command\SetupAwsS3Command:
+        tags: ['console.command']
+
+    Klizer\AwsS3Bundle\Controller\AwsConfigController:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    Klizer\AwsS3Bundle\Controller\ConfigurationController:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    klizer.form.aws_setup:
+        class: Akeneo\Platform\Bundle\UIBundle\Structure\Form\RegistryExtension
+        arguments:
+            - klizer-aws-setup-form           # Your custom form alias
+            - pim/form/common/form            # The base form you want to extend
+        tags:
+            - { name: pim_enrich.form_extension, priority: 100 }
+        calls:
+            - [ setConfig, [{ module: 'klizer/tab-switch' }] ]
+

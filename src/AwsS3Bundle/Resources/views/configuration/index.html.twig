@@ -1,0 +1,38 @@
+{% extends '@AkeneoPimUi/layout.html.twig' %}
+
+{% block title %}AWS Configuration{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>AWS S3 Configuration</h1>
+        
+        <div id="aws-tabs">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" id="documentation-tab" href="#documentation" data-toggle="tab">Documentation</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="credentials-tab" href="#credentials" data-toggle="tab">Credentials</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="support-tab" href="#support" data-toggle="tab">Support</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="documentation">
+                    <h3>Documentation Content</h3>
+                    <p>This section will contain the documentation for configuring AWS S3.</p>
+                </div>
+                <div class="tab-pane fade" id="credentials">
+                    <h3>Credentials Content</h3>
+                    <p>This section will contain the credentials configuration for AWS S3.</p>
+                </div>
+                <div class="tab-pane fade" id="support">
+                    <h3>Support Content</h3>
+                    <p>This section will contain the support information for AWS S3.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
