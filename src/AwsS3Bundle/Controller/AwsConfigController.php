@@ -20,7 +20,7 @@ class AwsConfigController extends AbstractController
 public function index(Request $request): Response
 {
     $nonce = bin2hex(random_bytes(16));
-    $envFile = dirname(__DIR__, 4) . '/.env.local';
+    $envFile = dirname(__DIR__, 6) . '/.env.local';
     $envContent = file_exists($envFile) ? file_get_contents($envFile) : '';
     $awsValues = array_map('trim', [
         'AWS_ACCESS_KEY_ID'     => $this->getEnvValue($envContent, 'AWS_ACCESS_KEY_ID'),
@@ -106,7 +106,7 @@ public function index(Request $request): Response
     }
 
     // Path to .env.local
-    $envFile = dirname(__DIR__, 4) . '/.env.local';
+    $envFile = dirname(__DIR__, 6) . '/.env.local';
 
     if (!is_writable(dirname($envFile))) {
         return new JsonResponse(['message' => 'Cannot write to .env.local directory'], 500);

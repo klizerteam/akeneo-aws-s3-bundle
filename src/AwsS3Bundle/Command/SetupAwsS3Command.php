@@ -6,6 +6,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Yaml;
 
 class SetupAwsS3Command extends Command
 {
@@ -18,16 +20,19 @@ class SetupAwsS3Command extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $projectRoot = dirname(__DIR__, 4);
+        $projectRoot = dirname(__DIR__, 6);
         $envPath = $projectRoot . '/.env.local';
         
-            // Check required composer packages
-	    if (!$this->ensureComposerPackageInstalled('league/flysystem-aws-s3-v3', $projectRoot, $output)) {
-		return Command::FAILURE;
-	    }
-	    if (!$this->ensureComposerPackageInstalled('aws/aws-sdk-php', $projectRoot, $output)) {
-		return Command::FAILURE;
-	    }
+         $output->writeln($projectRoot);
+        
+        // Check for required composer packages
+        if (!$this->ensureComposerPackageInstalled('league/flysystem-aws-s3-v3', $projectRoot, $output)) {
+            return Command::FAILURE;
+        }
+        if (!$this->ensureComposerPackageInstalled('aws/aws-sdk-php', $projectRoot, $output)) {
+            return Command::FAILURE;
+        }
+
         $output->writeln('<info>Configure AWS Connection:</info>');
         $questions = [
             'AWS Access Key ID' => 'AWS_ACCESS_KEY_ID',
@@ -56,10 +61,8 @@ class SetupAwsS3Command extends Command
         $this->writeKlizerServiceConfig($projectRoot, $output);
         $this->writeKlizerRouteConfig($projectRoot, $output);
 
-
         // Clear Akeneo cache
         exec('php bin/console cache:clear --env=prod');
-        //exec('php bin/console pim:installer:assets --symlink --clean');
         exec('php bin/console cache:warmup --env=prod');
         $output->writeln('<info>Akeneo cache cleared and warmed up</info>');
 
@@ -69,12 +72,12 @@ class SetupAwsS3Command extends Command
     private function writeOneupConfig($projectRoot, OutputInterface $output)
     {
         $output->writeln('oneup config triggered');
-
         $dir = $projectRoot . '/vendor/akeneo/pim-community-dev/config/packages/prod';
         $filePath = "$dir/oneup_flysystem.yml";
 
-        if (!is_dir($dir)) {
-            mkdir($dir, 0775, true);
+        $filesystem = new Filesystem();
+        if (!$filesystem->exists($dir)) {
+            $filesystem->mkdir($dir, 0775);
             $output->writeln("Created directory: $dir");
         }
 
@@ -158,9 +161,14 @@ YAML;
     private function writeStorageAliases($projectRoot, OutputInterface $output)
     {
         $output->writeln('storage file triggered');
-
         $dir = $projectRoot . '/vendor/akeneo/pim-community-dev/config/services/prod';
         $filePath = "$dir/storage.yml";
+
+        $filesystem = new Filesystem();
+        if (!$filesystem->exists($dir)) {
+            $filesystem->mkdir($dir, 0775);
+            $output->writeln("Created directory: $dir");
+        }
 
         $yaml = <<<YAML
 services:
@@ -178,77 +186,106 @@ YAML;
         $output->writeln("storage.yml written to: $filePath");
     }
 
-private function writeServiceAliases($projectRoot, OutputInterface $output)
-{
-    $output->writeln('service file triggered');
+    private function writeServiceAliases($projectRoot, OutputInterface $output)
+    {
+        $output->writeln('service file triggered');
+        $dir = $projectRoot . '/vendor/akeneo/pim-community-dev/config/services';
+        $filePath = "$dir/services.yml";
 
-    $dir = $projectRoot . '/vendor/akeneo/pim-community-dev/config/services';
-    $filePath = "$dir/services.yml";
-
-    $aliasBlock = <<<YAML
+        $aliasBlock = <<<YAML
     aws_s3_client:
         alias: Aws\\S3\\S3Client
 YAML;
 
-    $existingContent = file_exists($filePath) ? file_get_contents($filePath) : '';
+        $existingContent = file_exists($filePath) ? file_get_contents($filePath) : '';
 
-    if (str_contains($existingContent, 'aws_s3_client:')) {
-        $output->writeln("services.yml already contains aws_s3_client alias, skipped writing.");
-        return;
-    }
+        if (str_contains($existingContent, 'aws_s3_client:')) {
+            $output->writeln("services.yml already contains aws_s3_client alias, skipped writing.");
+            return;
+        }
 
-    if (preg_match('/^services:\s*$/m', $existingContent) || preg_match('/^services:\s*\n/m', $existingContent)) {
-        // Add under existing services block
-        $lines = explode("\n", $existingContent);
-        $newLines = [];
-        $servicesFound = false;
+        if (preg_match('/^services:\s*$/m', $existingContent) || preg_match('/^services:\s*\n/m', $existingContent)) {
+            // Add under existing services block
+            $lines = explode("\n", $existingContent);
+            $newLines = [];
+            $servicesFound = false;
 
-        foreach ($lines as $line) {
-            $newLines[] = $line;
-            if (preg_match('/^services:\s*$/', $line)) {
-                $servicesFound = true;
-            } elseif ($servicesFound && trim($line) !== '' && !str_starts_with($line, ' ')) {
-                // Found a top-level next block, insert before it
-                $newLines[] = rtrim($aliasBlock);
-                $servicesFound = false; // reset
+            foreach ($lines as $line) {
+                $newLines[] = $line;
+                if (preg_match('/^services:\s*$/', $line)) {
+                    $servicesFound = true;
+                } elseif ($servicesFound && trim($line) !== '' && !str_starts_with($line, ' ')) {
+                    // Found a top-level next block, insert before it
+                    $newLines[] = rtrim($aliasBlock);
+                    $servicesFound = false; // reset
+                }
             }
-        }
 
-        // If still inside services block at end of file
-        if ($servicesFound) {
-            $newLines[] = rtrim($aliasBlock);
-        }
+            // If still inside services block at end of file
+            if ($servicesFound) {
+                $newLines[] = rtrim($aliasBlock);
+            }
 
-        $updatedContent = implode("\n", $newLines);
-        file_put_contents($filePath, $updatedContent);
-        $output->writeln("services.yml updated by inserting aws_s3_client alias.");
-    } else {
-        // No services block found, create one
-        $block = <<<YAML
+            $updatedContent = implode("\n", $newLines);
+            file_put_contents($filePath, $updatedContent);
+            $output->writeln("services.yml updated by inserting aws_s3_client alias.");
+        } else {
+            // No services block found, create one
+            $block = <<<YAML
 services:
 $aliasBlock
 YAML;
-        file_put_contents($filePath, $existingContent . "\n\n" . $block);
-        $output->writeln("services.yml created with services block and aws_s3_client alias.");
+            file_put_contents($filePath, $existingContent . "\n\n" . $block);
+            $output->writeln("services.yml created with services block and aws_s3_client alias.");
+        }
     }
-}
 
-private function writeKlizerServiceConfig(string $projectRoot, OutputInterface $output): void
+private function writeKlizerServiceConfig($projectRoot, OutputInterface $output)
 {
+    // Correct path to Akeneo services directory
     $filePath = $projectRoot . '/config/services/klizer_aws.yml';
+    $dirPath = dirname($filePath);
+
+    // Ensure the directory exists
+    $filesystem = new Filesystem();
+    if (!$filesystem->exists($dirPath)) {
+        $filesystem->mkdir($dirPath, 0775);
+        $output->writeln("Created directory: $dirPath");
+    }
+
     $yaml = <<<YAML
-twig:
-  paths:
-    '%kernel.project_dir%/src/Klizer/AwsS3Bundle/Resources/views': klizer_aws
+aws_s3_client:
+    class: Aws\S3\S3Client
+    arguments:
+        - 
+            version: 'latest'
+            region: '%env(AWS_REGION)%'
+            credentials:
+                key: '%env(AWS_ACCESS_KEY_ID)%'
+                secret: '%env(AWS_SECRET_ACCESS_KEY)%'
+            endpoint: null
+            signature_version: 'v4'
+            use_path_style_endpoint: false
+            bucket: '%env(AWS_BUCKET_NAME)%'
 YAML;
 
     file_put_contents($filePath, $yaml);
     $output->writeln("<info>Service file written to: $filePath</info>");
 }
 
-private function writeKlizerRouteConfig(string $projectRoot, OutputInterface $output): void
+private function writeKlizerRouteConfig($projectRoot, OutputInterface $output)
 {
-    $filePath = $projectRoot . '/config/routes/klizer_aws.yml';
+    // Correct the path to Akeneo routes directory
+    $filePath = $projectRoot . '/config/routes/klizer_aws.yml';  // Correct path here
+    $dirPath = dirname($filePath);
+
+    // Ensure the directory exists
+    $filesystem = new Filesystem();
+    if (!$filesystem->exists($dirPath)) {
+        $filesystem->mkdir($dirPath, 0775);
+        $output->writeln("Created directory: $dirPath");
+    }
+
     $yaml = <<<YAML
 klizer_aws:
     resource: '@KlizerAwsS3Bundle/Resources/config/routes.yml'
@@ -258,50 +295,51 @@ YAML;
     $output->writeln("<info>Route file written to: $filePath</info>");
 }
 
-private function ensureComposerPackageInstalled(string $packageName, string $projectRoot, OutputInterface $output): bool
-{
-    $composerLockPath = $projectRoot . '/composer.lock';
-    $isInstalled = false;
 
-    if (file_exists($composerLockPath)) {
-        $composerLock = json_decode(file_get_contents($composerLockPath), true);
-        foreach ($composerLock['packages'] ?? [] as $package) {
-            if ($package['name'] === $packageName) {
-                $isInstalled = true;
-                break;
+
+    private function ensureComposerPackageInstalled(string $packageName, string $projectRoot, OutputInterface $output): bool
+    {
+        $composerLockPath = $projectRoot . '/composer.lock';
+        $isInstalled = false;
+
+        if (file_exists($composerLockPath)) {
+            $composerLock = json_decode(file_get_contents($composerLockPath), true);
+            foreach ($composerLock['packages'] ?? [] as $package) {
+                if ($package['name'] === $packageName) {
+                    $isInstalled = true;
+                    break;
+                }
             }
         }
-    }
 
-    if (!$isInstalled) {
-        $output->writeln("<comment>Package \"$packageName\" not found. Installing...</comment>");
-        $cmd = "composer require $packageName";
-        $process = proc_open($cmd, [
-            1 => ['pipe', 'w'],
-            2 => ['pipe', 'w'],
-        ], $pipes, $projectRoot);
+        if (!$isInstalled) {
+            $output->writeln("<comment>Package \"$packageName\" not found. Installing...</comment>");
+            $cmd = "composer require $packageName";
+            $process = proc_open($cmd, [
+                1 => ['pipe', 'w'],
+                2 => ['pipe', 'w'],
+            ], $pipes, $projectRoot);
 
-        if (is_resource($process)) {
-            $stdout = stream_get_contents($pipes[1]);
-            $stderr = stream_get_contents($pipes[2]);
-            fclose($pipes[1]);
-            fclose($pipes[2]);
+            if (is_resource($process)) {
+                $stdout = stream_get_contents($pipes[1]);
+                $stderr = stream_get_contents($pipes[2]);
+                fclose($pipes[1]);
+                fclose($pipes[2]);
 
-            $returnCode = proc_close($process);
-            if ($returnCode !== 0) {
-                $output->writeln("<error>Failed to install $packageName:</error> $stderr");
-                return false;
-            } else {
-                $output->writeln("<info>Successfully installed $packageName</info>");
-                return true;
+                $returnCode = proc_close($process);
+                if ($returnCode !== 0) {
+                    $output->writeln("<error>Failed to install $packageName:</error> $stderr");
+                    return false;
+                } else {
+                    $output->writeln("<info>Successfully installed $packageName</info>");
+                    return true;
+                }
             }
+        } else {
+            $output->writeln("<info>$packageName is already installed.</info>");
         }
-    } else {
-        $output->writeln("<info>$packageName is already installed.</info>");
+
+        return true;
     }
-
-    return true;
-}
-
 }
 
