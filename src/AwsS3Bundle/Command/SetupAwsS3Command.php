@@ -171,6 +171,9 @@ YAML;
         }
 
         $yaml = <<<YAML
+parameters:
+    aws_s3_bucket: '%env(AWS_BUCKET_NAME)%'
+            
 services:
     Aws\S3\S3Client:
         arguments:
