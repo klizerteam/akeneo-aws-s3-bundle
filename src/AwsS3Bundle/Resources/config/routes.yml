@@ -1,0 +1,14 @@
+# AwsS3Bundle route config
+
+klizer_aws:
+    path: /klizer/aws
+    controller: Klizer\AwsS3Bundle\Controller\AwsConfigController::index
+    methods: GET
+    
+klizer_aws_s3_save:
+  path: /klizer/aws-s3/save
+  controller: Klizer\AwsS3Bundle\Controller\AwsConfigController::save
+  methods: [POST]
+ 
+
+

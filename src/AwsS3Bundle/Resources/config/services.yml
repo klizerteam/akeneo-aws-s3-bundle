@@ -1,0 +1,8 @@
+services:
+    Klizer\AwsS3Bundle\Command\SetupAwsS3Command:
+        tags: ['console.command']
+
+    Klizer\AwsS3Bundle\Controller\AwsConfigController:
+        autowire: true
+        autoconfigure: true
+        public: true

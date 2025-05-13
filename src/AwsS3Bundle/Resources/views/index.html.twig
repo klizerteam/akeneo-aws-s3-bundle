@@ -1,0 +1,125 @@
+{% block body %}
+    <link rel="stylesheet" href="{{ asset('bundles/klizerawss3/css/index.css') }}" />
+
+    {{ form_start(form, {
+        'action': path('klizer_aws_s3_save'),
+        'method': 'POST'
+    }) }}
+
+    <div class="AknDefault-contentWithColumn" data-drop-zone="column">
+        <div class="AknDefault-thirdColumnContainer">
+            <div class="AknDefault-thirdColumn" data-drop-zone="tree"></div>
+        </div>
+
+        <div class="AknDefault-contentWithBottom" data-drop-zone="bottom-panel">
+            <div class="AknDefault-mainContent entity-edit-form edit-form">
+                <header class="AknTitleContainer navigation">
+                    <div class="AknTitleContainer-line">
+                        <div class="AknTitleContainer-imageContainer" data-drop-zone="main-image"></div>
+
+                        <div class="AknTitleContainer-mainContainer">
+                            <div class="AknTitleContainer-line">
+                                <div class="AknTitleContainer-backLink" data-drop-zone="breadcrumb-back-link"></div>
+
+                                <div class="AknTitleContainer-breadcrumbs" data-drop-zone="breadcrumbs">
+                                    <nav aria-label="Breadcrumb">
+                                        <a class="breadcrumb-tab" aria-current="page">Klizer</a>
+                                    </nav>
+                                </div>
+
+                                <div class="AknTitleContainer-buttonsContainer">
+                                    <div class="AknTitleContainer-userMenuContainer user-menu" data-drop-zone="user-menu">
+                                        <div class="AknTitleContainer-userMenu">
+                                            <div class="AknDocsMenu">
+                                                <a href="docs">
+                                                    <div class="AknDocsMenu-link" title="Documentation"></div>
+                                                </a>
+                                            </div>
+                                            <div class="AknSupportMenu">
+                                                <a href="support">
+                                                    <div class="AknSupportMenu-link" title="Support"></div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="AknTitleContainer-actionsContainer AknButtonList" data-drop-zone="buttons">
+                                        <button type="submit" class="AknButton AknButton--apply">Save</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="AknTitleContainer-line">
+                                <div class="AknTitleContainer-title" data-drop-zone="title">
+                                    <div>Akeneo S3 Bucket Connector</div>
+                                </div>
+                                <div class="AknTitleContainer-state" data-drop-zone="state">
+                                    {% for message in app.flashes('success') %}
+                                        <div class="alert alert-success my-4" id="success-message">{{ message }}</div>
+                                    {% endfor %}
+                                    {% for message in app.flashes('error') %}
+                                        <div class="alert alert-error my-4" id="error-message">{{ message }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div data-drop-zone="content" class="content">
+                    <div class="tabbable tabs-top">
+                        <header class="AknHorizontalNavtab">
+                            <ul class="AknHorizontalNavtab-list nav nav-tabs form-tabs">
+                                <li class="AknHorizontalNavtab-item" data-tab="aws-configuration-tab-credential">
+                                    <a class="AknHorizontalNavtab-link AknHorizontalNavtab-link--active" href="javascript:void(0);" role="button">
+                                        Credentials
+                                    </a>
+                                </li>
+                            </ul>
+                        </header>
+
+                        <div class="AknTabContainer-contentThreeColumns form-container form-horizontal">
+                            <div data-tab-content="aws-configuration-tab-credential">
+                                {% if aws_status == 'success' %}
+                                    <div class="alert alert-success">✅ AWS connection successful!</div>
+                                {% elseif aws_status == 'error' %}
+                                    <div class="alert alert-error">❌ AWS connection failed: {{ aws_error }}</div>
+                                {% endif %}
+
+                                <div class="AknFormContainer AknFormContainer--withPadding AknFormContainer-otherSettings">
+                                    <div class="mb-3">
+                                        {{ form_label(form.AWS_ACCESS_KEY_ID) }}
+                                        {{ form_widget(form.AWS_ACCESS_KEY_ID) }}
+                                    </div><br>
+
+                                    <div class="mb-3">
+                                        {{ form_label(form.AWS_SECRET_ACCESS_KEY) }}
+                                        {{ form_widget(form.AWS_SECRET_ACCESS_KEY) }}
+                                    </div><br>
+
+                                    <div class="mb-3">
+                                        {{ form_label(form.AWS_REGION) }}
+                                        {{ form_widget(form.AWS_REGION) }}
+                                    </div><br>
+
+                                    <div class="mb-3">
+                                        {{ form_label(form.AWS_BUCKET_NAME) }}
+                                        {{ form_widget(form.AWS_BUCKET_NAME) }}
+                                    </div><br>
+
+                                    <div class="mb-3">
+                                        {{ form_label(form.AWS_PREFIX) }}
+                                        {{ form_widget(form.AWS_PREFIX) }}
+                                    </div><br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    {{ form_end(form) }}
+{% endblock %}
+
