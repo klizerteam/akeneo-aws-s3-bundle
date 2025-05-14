@@ -18,7 +18,7 @@
     },
     "autoload": {
       "psr-4": {
-        "Klizer\\AwsS3Bundle\\": "src/Klizer/AwsS3Bundle/"
+         "Klizer\\AwsS3Bundle\\": "vendor/klizer/akeneo-aws-s3-bundle/src/Klizer/AwsS3Bundle/"
       }
     },
     "scripts": {
