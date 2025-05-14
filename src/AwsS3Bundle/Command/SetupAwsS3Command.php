@@ -5,9 +5,7 @@ namespace Klizer\AwsS3Bundle\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Yaml\Yaml;
 
 class SetupAwsS3Command extends Command
 {
@@ -22,9 +20,9 @@ class SetupAwsS3Command extends Command
     {
         $projectRoot = dirname(__DIR__, 6);
         $envPath = $projectRoot . '/.env.local';
-        
-         $output->writeln($projectRoot);
-        
+
+        $output->writeln($projectRoot);
+
         // Check for required composer packages
         if (!$this->ensureComposerPackageInstalled('league/flysystem-aws-s3-v3', $projectRoot, $output)) {
             return Command::FAILURE;
@@ -33,27 +31,24 @@ class SetupAwsS3Command extends Command
             return Command::FAILURE;
         }
 
-        $output->writeln('<info>Configure AWS Connection:</info>');
-        $questions = [
-            'AWS Access Key ID' => 'AWS_ACCESS_KEY_ID',
-            'AWS Secret Access Key' => 'AWS_SECRET_ACCESS_KEY',
-            'AWS Region' => 'AWS_REGION',
-            'AWS Bucket Name' => 'AWS_BUCKET_NAME',
-            'S3 Prefix (e.g. akeneo/)' => 'AWS_PREFIX',
+        $output->writeln('<info>Setting up AWS credentials with empty values</info>');
+        $envVars = [
+            'AWS_ACCESS_KEY_ID',
+            'AWS_SECRET_ACCESS_KEY',
+            'AWS_REGION',
+            'AWS_BUCKET_NAME',
+            'AWS_PREFIX',
         ];
 
-        $helper = $this->getHelper('question');
         $envContent = file_exists($envPath) ? file_get_contents($envPath) : "";
 
-        foreach ($questions as $label => $key) {
-            $question = new Question("$label: ");
-            $answer = $helper->ask($input, $output, $question);
-            $envContent = preg_replace("/^$key=.*$/m", '', $envContent); // Remove old
-            $envContent .= "\n$key=$answer";
+        foreach ($envVars as $key) {
+            $envContent = preg_replace("/^$key=.*$/m", '', $envContent); // Remove old value
+            $envContent .= "\n$key=";
         }
 
         file_put_contents($envPath, $envContent);
-        $output->writeln('<info>.env.local updated with AWS credentials</info>');
+        $output->writeln('<info>.env.local updated with empty AWS credentials</info>');
 
         $this->writeOneupConfig($projectRoot, $output);
         $this->writeStorageAliases($projectRoot, $output);
@@ -173,7 +168,7 @@ YAML;
         $yaml = <<<YAML
 parameters:
     aws_s3_bucket: '%env(AWS_BUCKET_NAME)%'
-            
+
 services:
     Aws\S3\S3Client:
         arguments:
@@ -208,7 +203,6 @@ YAML;
         }
 
         if (preg_match('/^services:\s*$/m', $existingContent) || preg_match('/^services:\s*\n/m', $existingContent)) {
-            // Add under existing services block
             $lines = explode("\n", $existingContent);
             $newLines = [];
             $servicesFound = false;
@@ -218,13 +212,11 @@ YAML;
                 if (preg_match('/^services:\s*$/', $line)) {
                     $servicesFound = true;
                 } elseif ($servicesFound && trim($line) !== '' && !str_starts_with($line, ' ')) {
-                    // Found a top-level next block, insert before it
                     $newLines[] = rtrim($aliasBlock);
-                    $servicesFound = false; // reset
+                    $servicesFound = false;
                 }
             }
 
-            // If still inside services block at end of file
             if ($servicesFound) {
                 $newLines[] = rtrim($aliasBlock);
             }
@@ -233,7 +225,6 @@ YAML;
             file_put_contents($filePath, $updatedContent);
             $output->writeln("services.yml updated by inserting aws_s3_client alias.");
         } else {
-            // No services block found, create one
             $block = <<<YAML
 services:
 $aliasBlock
@@ -243,20 +234,18 @@ YAML;
         }
     }
 
-private function writeKlizerServiceConfig($projectRoot, OutputInterface $output)
-{
-    // Correct path to Akeneo services directory
-    $filePath = $projectRoot . '/config/services/klizer_aws.yml';
-    $dirPath = dirname($filePath);
+    private function writeKlizerServiceConfig($projectRoot, OutputInterface $output)
+    {
+        $filePath = $projectRoot . '/config/services/klizer_aws.yml';
+        $dirPath = dirname($filePath);
 
-    // Ensure the directory exists
-    $filesystem = new Filesystem();
-    if (!$filesystem->exists($dirPath)) {
-        $filesystem->mkdir($dirPath, 0775);
-        $output->writeln("Created directory: $dirPath");
-    }
+        $filesystem = new Filesystem();
+        if (!$filesystem->exists($dirPath)) {
+            $filesystem->mkdir($dirPath, 0775);
+            $output->writeln("Created directory: $dirPath");
+        }
 
-    $yaml = <<<YAML
+        $yaml = <<<YAML
 aws_s3_client:
     class: Aws\S3\S3Client
     arguments:
@@ -272,33 +261,29 @@ aws_s3_client:
             bucket: '%env(AWS_BUCKET_NAME)%'
 YAML;
 
-    file_put_contents($filePath, $yaml);
-    $output->writeln("<info>Service file written to: $filePath</info>");
-}
-
-private function writeKlizerRouteConfig($projectRoot, OutputInterface $output)
-{
-    // Correct the path to Akeneo routes directory
-    $filePath = $projectRoot . '/config/routes/klizer_aws.yml';  // Correct path here
-    $dirPath = dirname($filePath);
-
-    // Ensure the directory exists
-    $filesystem = new Filesystem();
-    if (!$filesystem->exists($dirPath)) {
-        $filesystem->mkdir($dirPath, 0775);
-        $output->writeln("Created directory: $dirPath");
+        file_put_contents($filePath, $yaml);
+        $output->writeln("<info>Service file written to: $filePath</info>");
     }
 
-    $yaml = <<<YAML
+    private function writeKlizerRouteConfig($projectRoot, OutputInterface $output)
+    {
+        $filePath = $projectRoot . '/config/routes/klizer_aws.yml';
+        $dirPath = dirname($filePath);
+
+        $filesystem = new Filesystem();
+        if (!$filesystem->exists($dirPath)) {
+            $filesystem->mkdir($dirPath, 0775);
+            $output->writeln("Created directory: $dirPath");
+        }
+
+        $yaml = <<<YAML
 klizer_aws:
     resource: '@KlizerAwsS3Bundle/Resources/config/routes.yml'
 YAML;
 
-    file_put_contents($filePath, $yaml);
-    $output->writeln("<info>Route file written to: $filePath</info>");
-}
-
-
+        file_put_contents($filePath, $yaml);
+        $output->writeln("<info>Route file written to: $filePath</info>");
+    }
 
     private function ensureComposerPackageInstalled(string $packageName, string $projectRoot, OutputInterface $output): bool
     {
@@ -345,4 +330,3 @@ YAML;
         return true;
     }
 }
-
