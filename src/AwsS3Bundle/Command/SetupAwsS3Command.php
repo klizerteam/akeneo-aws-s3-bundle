@@ -32,22 +32,25 @@ class SetupAwsS3Command extends Command
         }
 
         $output->writeln('<info>Setting up AWS credentials with empty values</info>');
+        
         $envVars = [
-            'AWS_ACCESS_KEY_ID',
-            'AWS_SECRET_ACCESS_KEY',
-            'AWS_REGION',
-            'AWS_BUCKET_NAME',
-            'AWS_PREFIX',
-        ];
+	    'AWS_ACCESS_KEY_ID' => '',
+	    'AWS_SECRET_ACCESS_KEY' => '',
+	    'AWS_REGION' => 'us-east-1', // default value
+	    'AWS_BUCKET_NAME' => '',
+	    'AWS_PREFIX' => '',
+	];
 
-        $envContent = file_exists($envPath) ? file_get_contents($envPath) : "";
+	$envContent = file_exists($envPath) ? file_get_contents($envPath) : "";
 
-        foreach ($envVars as $key) {
-            $envContent = preg_replace("/^$key=.*$/m", '', $envContent); // Remove old value
-            $envContent .= "\n$key=";
-        }
+	// Clean existing keys and append new values
+	foreach ($envVars as $key => $value) {
+	    // Remove existing key if present
+	    $envContent = preg_replace("/^$key=.*$/m", '', $envContent);
+	    $envContent .= "\n{$key}={$value}";
+	}
 
-        file_put_contents($envPath, $envContent);
+	file_put_contents($envPath, trim($envContent) . "\n");
         $output->writeln('<info>.env.local updated with empty AWS credentials</info>');
 
         $this->writeOneupConfig($projectRoot, $output);
@@ -59,6 +62,7 @@ class SetupAwsS3Command extends Command
         // Clear Akeneo cache
         exec('php bin/console cache:clear --env=prod');
         exec('php bin/console cache:warmup --env=prod');
+        exec('NO_DOCKER=true make upgrade-front');
         $output->writeln('<info>Akeneo cache cleared and warmed up</info>');
 
         return Command::SUCCESS;
@@ -166,6 +170,9 @@ YAML;
         }
 
         $yaml = <<<YAML
+parameters:
+    aws_s3_bucket: '%env(AWS_BUCKET_NAME)%'
+
 services:
     Aws\S3\S3Client:
         arguments:
@@ -259,7 +266,7 @@ services:
                 endpoint: null
                 signature_version: 'v4'
                 use_path_style_endpoint: false
-YAML;
+YAML;;
 
         file_put_contents($filePath, $yaml);
         $output->writeln("<info>Service file written to: $filePath</info>");
