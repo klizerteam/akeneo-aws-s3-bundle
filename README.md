@@ -7,7 +7,7 @@ A Symfony bundle that integrates **Amazon S3** as a storage backend for **Akeneo
 ## 📦 Features
 
 - ✅ Configure AWS S3 for storing media and asset files in Akeneo
-- ⚙️ Compatible with **Akeneo PIM 6.x and 7.x**
+- ⚙️ Compatible with **Akeneo PIM 7.x**
 - 🔄 Automatically updates Flysystem configuration
 - 🔐 Uses environment variables or configuration files for AWS credentials
 - 🧩 Simple Composer-based installation
