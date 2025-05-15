@@ -245,19 +245,20 @@ YAML;
         $yaml = <<<YAML
 parameters:
     aws_s3_bucket: '%env(AWS_BUCKET_NAME)%'
-aws_s3_client:
-    class: Aws\S3\S3Client
-    arguments:
-        - 
-            version: 'latest'
-            region: '%env(AWS_REGION)%'
-            credentials:
-                key: '%env(AWS_ACCESS_KEY_ID)%'
-                secret: '%env(AWS_SECRET_ACCESS_KEY)%'
-            endpoint: null
-            signature_version: 'v4'
-            use_path_style_endpoint: false
-            bucket: '%env(AWS_BUCKET_NAME)%'
+
+services:
+    aws_s3_client:
+        class: Aws\S3\S3Client
+        arguments:
+            -
+                version: 'latest'
+                region: '%env(AWS_REGION)%'
+                credentials:
+                    key: '%env(AWS_ACCESS_KEY_ID)%'
+                    secret: '%env(AWS_SECRET_ACCESS_KEY)%'
+                endpoint: null
+                signature_version: 'v4'
+                use_path_style_endpoint: false
 YAML;
 
         file_put_contents($filePath, $yaml);
