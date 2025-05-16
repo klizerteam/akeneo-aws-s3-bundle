@@ -1,6 +1,8 @@
 {% block body %}
+    {# Load custom CSS for the bundle #}
     <link rel="stylesheet" href="{{ asset('bundles/klizerawss3/css/index.css') }}" />
 
+    {# Start the form with POST method and save action #}
     {{ form_start(form, {
         'action': path('klizer_aws_s3_save'),
         'method': 'POST'
@@ -13,6 +15,8 @@
 
         <div class="AknDefault-contentWithBottom" data-drop-zone="bottom-panel">
             <div class="AknDefault-mainContent entity-edit-form edit-form">
+
+                {# Page Header #}
                 <header class="AknTitleContainer navigation">
                     <div class="AknTitleContainer-line">
                         <div class="AknTitleContainer-imageContainer" data-drop-zone="main-image"></div>
@@ -21,12 +25,14 @@
                             <div class="AknTitleContainer-line">
                                 <div class="AknTitleContainer-backLink" data-drop-zone="breadcrumb-back-link"></div>
 
+                                {# Breadcrumb #}
                                 <div class="AknTitleContainer-breadcrumbs" data-drop-zone="breadcrumbs">
                                     <nav aria-label="Breadcrumb">
                                         <a class="breadcrumb-tab" aria-current="page">Klizer</a>
                                     </nav>
                                 </div>
 
+                                {# Top-right buttons: Docs, Support, Save #}
                                 <div class="AknTitleContainer-buttonsContainer">
                                     <div class="AknTitleContainer-userMenuContainer user-menu" data-drop-zone="user-menu">
                                         <div class="AknTitleContainer-userMenu">
@@ -52,6 +58,8 @@
                                 <div class="AknTitleContainer-title" data-drop-zone="title">
                                     <div>Akeneo S3 Bucket Connector</div>
                                 </div>
+
+                                {# Flash success or error messages #}
                                 <div class="AknTitleContainer-state" data-drop-zone="state">
                                     {% for message in app.flashes('success') %}
                                         <div class="alert alert-success my-4" id="success-message">{{ message }}</div>
@@ -65,6 +73,7 @@
                     </div>
                 </header>
 
+                {# Main Content Area #}
                 <div data-drop-zone="content" class="content">
                     <div class="tabbable tabs-top">
                         <header class="AknHorizontalNavtab">
@@ -79,12 +88,15 @@
 
                         <div class="AknTabContainer-contentThreeColumns form-container form-horizontal">
                             <div data-tab-content="aws-configuration-tab-credential">
+
+                                {# AWS connection status messages #}
                                 {% if aws_status == 'success' %}
                                     <div class="alert alert-success">✅ AWS connection successful!</div>
                                 {% elseif aws_status == 'error' %}
                                     <div class="alert alert-error">❌ AWS connection failed: {{ aws_error }}</div>
                                 {% endif %}
 
+                                {# AWS Credentials Form Fields #}
                                 <div class="AknFormContainer AknFormContainer--withPadding AknFormContainer-otherSettings">
                                     <div class="mb-3">
                                         {{ form_label(form.AWS_ACCESS_KEY_ID) }}
@@ -116,10 +128,9 @@
                     </div>
                 </div>
 
-            </div>
-        </div>
-    </div>
+            </div> {# End .AknDefault-mainContent #}
+        </div> {# End .AknDefault-contentWithBottom #}
+    </div> {# End .AknDefault-contentWithColumn #}
 
     {{ form_end(form) }}
 {% endblock %}
-

@@ -1,3 +1,4 @@
+/* Input field styling within Akeneo field containers */
 .AknFieldContainer .AknFieldContainer-inputContainer input {
     width: 100%;
     padding: 6px;
@@ -8,12 +9,14 @@
     margin-bottom: 8px;
 }
 
+/* Label styling for form inputs */
 label {
     font-size: 15px;
     font-weight: 600;
     color: #333;
 }
 
+/* Success alert box styling */
 .alert-success {
     background-color: #d4edda;
     border: 1px solid #c3e6cb;
@@ -23,16 +26,17 @@ label {
     margin-top: 15px;
 }
 
+/* Error alert box styling */
 .alert-error {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: red;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
     padding: 10px;
     border-radius: 5px;
     margin-top: 15px;
 }
 
-
+/* Documentation icon styling */
 .AknDocsMenu-link {
     height: 32px;
     width: 32px;
@@ -43,6 +47,7 @@ label {
     background-size: 16px;
 }
 
+/* Support icon styling */
 .AknSupportMenu-link {
     height: 32px;
     width: 32px;
@@ -53,7 +58,7 @@ label {
     background-size: 16px;
 }
 
-.AknDocsMenu
-{
-  padding-right: 4px;
+/* Padding for the documentation menu container */
+.AknDocsMenu {
+    padding-right: 4px;
 }

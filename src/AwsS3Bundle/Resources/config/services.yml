@@ -1,8 +1,10 @@
 services:
+    # Register the custom console command to set up AWS S3 configuration
     Klizer\AwsS3Bundle\Command\SetupAwsS3Command:
         tags: ['console.command']
 
+    # Register the controller responsible for handling AWS S3 config forms and routes
     Klizer\AwsS3Bundle\Controller\AwsConfigController:
-        autowire: true
-        autoconfigure: true
-        public: true
+        autowire: true         # Automatically inject dependencies based on type hints
+        autoconfigure: true    # Automatically apply configuration for typical Symfony services (e.g., routing, logging)
+        public: true           # Make controller service publicly accessible (required for Symfony < 5.3)

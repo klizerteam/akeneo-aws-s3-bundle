@@ -1,12 +1,12 @@
 extensions:
     pim-menu-klizer-aws:
-        module: pim/menu/item
-        parent: pim-menu
-        position: 200  # Adjust the position as needed
-        targetZone: mainMenu
-        config:
-            title: klizer_aws.menu.title  # This will be your translation key for the title
-            iconModifier: AssetCollectionIcon
-            icon: AssetCollectionIcon
-            to: klizer_aws  # This will point to the route /klizer/hello
+        module: pim/menu/item                   # Base module to create a menu item
+        parent: pim-menu                        # Parent menu group
+        position: 200                           # Order position in the menu
+        targetZone: mainMenu                    # Target area for the menu
 
+        config:
+            title: klizer_aws.menu.title        # Translation key for menu title (add to translation files)
+            iconModifier: AssetCollectionIcon   # Optional modifier class for the icon (e.g., size or color)
+            icon: AssetCollectionIcon           # Icon name from Akeneo UI icons
+            to: klizer_aws                      # Frontend route name (should match route defined in routing config)

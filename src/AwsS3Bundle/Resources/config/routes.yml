@@ -1,14 +1,13 @@
-# AwsS3Bundle route config
+# AwsS3Bundle route configuration
 
+# Route for displaying the AWS S3 configuration form
 klizer_aws:
     path: /klizer/aws
     controller: Klizer\AwsS3Bundle\Controller\AwsConfigController::index
-    methods: GET
-    
+    methods: [GET]
+
+# Route for handling form submission (saving AWS S3 configuration)
 klizer_aws_s3_save:
-  path: /klizer/aws-s3/save
-  controller: Klizer\AwsS3Bundle\Controller\AwsConfigController::save
-  methods: [POST]
- 
-
-
+    path: /klizer/aws-s3/save
+    controller: Klizer\AwsS3Bundle\Controller\AwsConfigController::save
+    methods: [POST]
